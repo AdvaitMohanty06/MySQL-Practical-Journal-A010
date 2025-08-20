@@ -74,9 +74,10 @@ alter table Customers drop Column DOB;
 
 show create table Orders;
 alter table Orders drop Foreign Key orders_ibfk_1;
-alter table OrderDetails add Column Discount INT default(0);
+alter table OrderDetails add Discount INT default(0);
 alter table OrderDetails alter Discount drop default;
-alter table Books drop Column ISBN;
+show create table Books;
+alter table Books alter ISBN drop default;
 
 show create table Books;
 alter table Books drop CHECK books_chk_3;
@@ -93,12 +94,13 @@ CHECK (Region in ('North','South','East','West'))
 alter table DeliveryAgents add column Email varchar(50) UNIQUE;
 alter table DeliveryAgents modify Phone varchar(10);
 
-alter table Orders add Column DeliveryAgentID INT;
-alter table Orders add Constraint fk_delivery Foreign Key (DeliveryAgentID)
-references DeliveryAgents(DeliveryAgentID);
-
 alter table DeliveryAgents drop Email;
 alter table DeliveryAgents rename to DeliveryTeam;
+
+alter table Orders add Column DeliveryAgentID INT;
+alter table Orders add Constraint fk_delivery Foreign Key (DeliveryAgentID)
+references DeliveryTeam(DeliveryAgentID);
+
 
 alter table DeliveryTeam drop CHECK deliveryteam_chk_1;
 alter table DeliveryTeam rename Column Region to AssignedRegion;
@@ -201,6 +203,10 @@ Foreign Key (AuthID) references Authors(AuthID),
 Foreign Key (CategoryID) references Categories(CategoryID)
 );
 
+alter table Books add Edition varchar(20) DEFAULT ('FIRST');
+alter table Books modify Edition varchar(50) DEFAULT ('FIRST');
+alter table Books drop Edition;
+
 create table DeliveryAgents(
 DeliveryAgentID INT Primary Key,
 Name varchar(20),
@@ -224,8 +230,8 @@ alter table DeliveryLogs add Constraint CHECK(Status in ('Delivered','Pending','
 show create table DeliveryLogs;
 alter table DeliveryLogs drop CHECK deliverylogs_chk_1;
 
-alter table Books add Column Ratings varchar(30);
-alter table Books modify Ratings Decimal(10,2);
+alter table Books add Column Ratings varchar(30) check (Ratings in (1,5));
+alter table Books modify Ratings Decimal(10,2) check (Ratings in (1,5));
 alter table Books drop Column Ratings;
 
 create table BookReview(
@@ -240,7 +246,7 @@ Foreign Key (CustomerID) references Clients(CustomerID)
 alter table BookReview add Column Stars INT NOT NULL CHECK (Stars in (1,2,3,4,5));
 alter table BookReview modify Stars INT NULL;
 
-drop table BookReviews;
+drop table BookReview;
 
 create table BookReview(
 ReviewID INT Primary Key,
