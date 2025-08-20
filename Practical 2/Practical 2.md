@@ -348,14 +348,14 @@ Q41. Truncate the Payments table.
 
 A41.
 ```sql
-drop table Payments;
+delete from Payments;
 ```
 
 Q42. Truncate the OrderDetails table.
 
 A42. 
 ```sql
-drop table DeliveryTeam;
+delete from DeliveryTeam;
 ```
 
 # Section D - Dropping and Renaming
