@@ -3,6 +3,13 @@ This practical deals with just one database, for an online bookstore. Here, many
 
 # Section A - Table Creation and Constraints
 
+First, the database is created (first query) and then activated (second query).
+```sql
+create database BookStore;
+use BookStore;
+```
+
+
 Q1. Create a table Authors with the following attributes:
 - AuthorID (Primary Key)
 - Name (Required)
