@@ -411,3 +411,392 @@ alter table OrderDetails drop Foreign Key orderdetails_ibfk_1;
 alter table OrderDetails drop Foreign Key orderdetails_ibfk_2;
 ```
 
+# Section E - Views and Advanced Constraints
+
+Q51. Create a VIEW called TopSellingBooks that shows:
+- BookID
+- Title
+- Total quantity sold (from OrderDetails)
+
+A51. 
+```sql
+create view TopSellingBooks as select 
+Books.BookID, Books.BookTitle, OrderDetails.Quantity from 
+Books join OrderDetails on Books.BookID = OrderDetails.BookID;
+```
+
+Q52. Add a DEFAULT constraint on Payments. Method to be 'Card'.
+
+A52. 
+```sql
+create table Payments(
+Payment_ID INT Primary Key,
+Order_ID INT,
+Amount INT,
+PaymentDate Date,
+Method Varchar(20) default('Cash'),
+Foreign Key (Order_ID) references Orders(Order_ID)
+);
+alter table Payments modify Method varchar(20) default('Card');
+```
+
+Q53. Create a table OrderNotes with a Note column having NOT NULL constraint.
+
+A53. 
+```sql
+create table OrderNotes(
+Notes varchar(500) NOT NULL);
+```
+
+Q54. Drop the UNIQUE constraint on Books.ISBN.
+
+A54. 
+```sql
+alter table Books drop index ISBN;
+```
+
+Q55. Drop the CHECK constraint from Books.Price.
+
+A55.
+```sql
+show create table Books;
+alter table Books drop CHECK BookInventory_chk_1;
+```
+
+# Section F - Real-World Scenarios
+
+Q61. Create a table ReturnRequests with:
+- ReturnID (Primary Key)
+- OrderID (FK)
+- Reason (VARCHAR)
+- Status (default: 'Pending')
+
+A61. 
+```sql
+create table ReturnRequests(
+ReturnID INT Primary Key,
+Order_ID INT,
+Reason varchar(50),
+Status varchar(10) default ('Pending'),
+Foreign Key (Order_ID) references Orders(Order_ID)
+);
+```
+
+Q62. Add ReturnDate to ReturnRequests.
+
+A62. 
+```sql
+alter table ReturnRequests add Column ReturnDate Date;
+```
+
+Q63. Drop the ReturnDate column.
+
+A63.
+```sql
+alter table ReturnRequests drop Column ReturnDate;
+```
+
+Q64. Add a FK from ReturnRequests to Orders.
+
+A64.
+```sql
+alter table ReturnRequests add Foreign Key (Order_ID) references Orders(Order_ID);
+```
+
+Q65. Drop the FK from ReturnRequests.
+
+A65. 
+```sql
+show create table ReturnRequests;
+alter table ReturnRequests drop Foreign Key returnrequests_ibfk_1;
+```
+
+Q66. Create a table Wishlists with composite PK (CustomerID, BookID).
+
+A66. Structures of the tables have been looked at to ensure that the names of the columns are the same, incase foriegn keys need to be added later. 
+```sql
+show create table Clients;
+show create table Books;
+create table wishlists(
+CustomerID INT, 
+BookID INT,
+Primary Key(BookID, CustomerID)
+);
+```
+
+Q67. Add DateAdded column to Wishlists.
+
+A67.
+```sql
+alter table Wishlists add Column DateAdded date;
+```
+
+Q68. Drop the DateAdded column.
+
+A68.
+```sql
+alter table Wishlists drop DateAdded;
+```
+
+Q69. Rename Wishlists to CustomerWishlists.
+
+A69.
+```sql
+alter table Wishlists rename to CustomerWishlists;
+```
+
+Q70. Rename CustomerWishlists back to Wishlists.
+
+A70.
+```sql
+alter table CustomerWishlists rename to Wishlists;
+```
+
+Q71–Q75. Perform any 5 meaningful renaming tasks using RENAME on tables or columns in your
+database.
+
+A71-75. The operations will be made, and reverted after execution, to ensure consistency for the next few questions.
+```sql
+alter table Authors rename Column Name to Author_Name;
+alter table Clients rename Column FullName to Client_Name;
+alter table Books rename to BookDetails;
+alter table Wishlists rename to BookRequests;
+alter table ReturnRequests rename Column Reason to Reason_for_Return;
+
+alter table Authors rename Column Author_Name to Name;
+alter table Clients rename Column Client_Name to FullName;
+alter table BookDetails rename to Books;
+alter table BookRequests rename to Wishlists;
+alter table ReturnRequests rename Column Reason_for_return to Reason;
+```
+
+# Section G - Final Challenges
+
+Q76. Drop the Books table completely.
+
+A76.
+```sql
+drop table Books;
+```
+
+Q77. Recreate Books with same original schema.
+
+A77. The latest E.R. diagram containing Books and the previous code have been used for this.
+```sql
+create table Books(
+BookID INT Primary Key,
+BookTitle varchar(30) Unique,
+AuthID INT Unique,
+CategoryID INT Unique, 
+Price INT CHECK (Price >= 0  AND Price < 10000),
+Stock TINYINT,
+YearPublished INT,
+Foreign Key (AuthID) references Authors(AuthID),
+Foreign Key (CategoryID) references Categories(CategoryID)
+);
+```
+
+Q78. Add an Edition column to Books (default to 'First').
+
+A78. 
+```sql
+alter table Books add Edition varchar(20) DEFAULT ('FIRST');
+```
+
+Q79. Modify the Edition column to VARCHAR(50).
+
+A79.
+```sql
+alter table Books modify Edition varchar(50) DEFAULT ('FIRST');
+```
+
+Q80. Drop the Edition column.
+
+A80. 
+```sql
+alter table Books drop Edition;
+```
+
+Q81. Create a table DeliveryLogs with:
+- LogID (PK)
+- DeliveryAgentID (FK)
+- Date
+- Status
+
+A81. The 'DeliveryAgents' table must first be recreated, as there is a foreign key referencing it. 
+```sql
+create table DeliveryAgents(
+DeliveryAgentID INT Primary Key,
+Name varchar(20),
+Phone varchar(10),
+Region varchar(5)  DEFAULT ('North'),
+CHECK (Region in ('North','South','East','West'))
+);
+
+create table DeliveryLogs(
+LogID INT Primary Key,
+DeliveryAgentID INT,
+Date Date,
+Status varchar(20),
+Foreign Key (DeliveryAgentID) references DeliveryAgents(DeliveryAgentID)
+);
+```
+
+Q82. Add a Comments column to DeliveryLogs.
+
+A82.
+```sql
+alter table DeliveryLogs add Column Comments varchar(70);
+```
+
+Q83. Drop the Comments column.
+
+A83. 
+```sql
+alter table DeliveryLogs drop Column Comments;
+```
+
+Q84. Add a CHECK constraint on Status to accept only 'Delivered', 'Pending', 'Failed'.
+
+A84. 
+```sql
+alter table DeliveryLogs add Constraint CHECK(Status in ('Delivered','Pending','Failed'));
+```
+
+Q85. Drop the CHECK constraint from DeliveryLogs.
+
+A85. 
+```sql
+show create table DeliveryLogs;
+alter table DeliveryLogs drop CHECK deliverylogs_chk_1;
+```
+
+Q86. Add a column Rating to Books with a CHECK (1–5).
+
+A86. 
+```sql
+alter table Books add Column Ratings varchar(30) check (Ratings in (1,5));
+```
+
+Q87. Modify the Rating column to allow decimals.
+
+A87. 
+```sql
+alter table Books modify Ratings Decimal(10,2) check (Ratings in (1,5));
+```
+
+Q88. Drop the Rating column.
+
+A88. 
+```sql
+alter table Books drop Column Ratings;
+```
+
+Q89. Create a table BookReviews with ReviewID (PK), BookID (FK), CustomerID (FK), ReviewText.
+
+A89. 
+```sql
+create table BookReview(
+ReviewID INT Primary Key,
+BookID INT,
+CustomerID INT,
+ReviewText varchar(20),
+Foreign Key (BookID) references Books(BookID),
+Foreign Key (CustomerID) references Clients(CustomerID)
+);
+```
+
+Q90. Add a column Stars (1–5) with a CHECK constraint.
+
+A90.
+```sql
+alter table BookReview add Column Stars INT NOT NULL CHECK (Stars in (1,2,3,4,5));
+```
+
+Q91. Modify Stars to be optional (remove NOT NULL).
+
+A91.
+```sql
+alter table BookReview modify Stars INT NULL;
+```
+
+Q92. Drop the BookReviews table.
+
+A92.
+```sql
+drop table BookReview;
+```
+
+Q93. Recreate BookReviews with all columns and constraints again.
+
+A93. 
+```sql
+create table BookReview(
+ReviewID INT Primary Key,
+BookID INT,
+CustomerID INT,
+ReviewText varchar(20),
+Stars INT NULL CHECK (Stars in (1,2,3,4,5)),
+Foreign Key (BookID) references Books(BookID),
+Foreign Key (CustomerID) references Clients(CustomerID)
+);
+```
+
+Q94. Add FK from BookReviews to Customers and Books.
+
+A94.
+```sql
+alter table BookReview add Foreign Key (BookID) references Books(BookID);
+alter table BookReview add Foreign Key (CustomerID) references Clients(CustomerID);
+```
+
+Q95. Drop FK from BookReviews.
+A94. 
+```sql
+show create table BookReview;
+alter table BookReview drop constraint bookreview_ibfk_1;
+alter table BookReview drop constraint bookreview_ibfk_2;
+alter table BookReview drop constraint bookreview_ibfk_3;
+alter table BookReview drop constraint bookreview_ibfk_4;
+```
+
+Q96. Drop BookReviews entirely.
+
+A96. 
+```sql
+drop table BookReview;
+```
+
+Q97. Create a table Coupons with CouponID, Code (Unique), Discount (%), ExpiryDate.
+
+A97. 
+```sql
+create table Coupons(
+CouponID INT,
+Code varchar(20) UNIQUE,
+Discount INT,
+ExpiryDate Date
+);
+```
+
+Q98. Add Status column (default 'Active').
+
+A98. 
+```sql
+alter table Coupons add Column Status varchar(10) default('Active');
+```
+
+Q99. Add a CHECK to ensure Discount is between 1 and 50.
+
+A99.
+```sql
+alter table Coupons add Constraint CHECK (Discount > 1 and Discount < 50);
+```
+
+Q100. Drop all constraints from Coupons table.
+
+A100.
+```sql
+show create table Coupons;
+alter table Coupons drop Constraint coupons_chk_1;
+```
